@@ -1,4 +1,4 @@
-package ygf
+package main
 
 import (
 	"log"
