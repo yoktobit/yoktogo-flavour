@@ -1,12 +1,9 @@
 package main
 
 import (
-	"log"
-
-	"github.com/yoktobit/yoktogo-flavour/pkg/mod"
+	"github.com/yoktobit/yoktogo-flavour/cmd"
 )
 
 func main() {
-	modName := mod.GetModuleName()
-	log.Println("modName=", modName)
+	cmd.Execute()
 }
