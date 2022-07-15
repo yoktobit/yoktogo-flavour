@@ -5,11 +5,25 @@ Copyright © 2022 Martin Windolph <martin@yoktobit.de>
 package cmd
 
 import (
+	"errors"
 	"log"
+	"os"
 
 	hofmod "github.com/hofstadter-io/hof/lib/mod"
 	"github.com/spf13/cobra"
 	"github.com/yoktobit/yoktogo-flavour/pkg/mod"
+)
+
+const (
+	LANG               = "cue"
+	HOFSTADTER_CUE_DEP = `
+require "github.com/hofstadter-io/hof" v0.6.2` + "\n"
+	HOFSTADTER_GO_DEP = `
+require (
+	cuelang.org/go v0.4.3
+	github.com/hofstadter-io/hof v0.6.2
+	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+)` + "\n"
 )
 
 // addCmd represents the add command
@@ -22,31 +36,62 @@ Known flavours:
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			log.Fatalln("Expected exactly one argument")
-			return
+			os.Exit(1)
 		}
 		flavour := args[0]
 		switch flavour {
-		case "cue":
+		case LANG:
 			moduleName := mod.GetModuleName()
 			hofmod.InitLangs()
-			err := hofmod.Init("cue", moduleName)
+			err := hofmod.Init(LANG, moduleName)
 			if err != nil {
 				log.Fatalln(err.Error())
+				os.Exit(1)
+			}
+			err = appendHof()
+			if err != nil {
+				log.Fatalln(err.Error())
+				os.Exit(1)
+			}
+			err = appendGo()
+			if err != nil {
+				log.Fatalln(err.Error())
+				os.Exit(1)
+			}
+			err = hofmod.Vendor(LANG)
+			if err != nil {
+				log.Fatalln(err.Error())
+				os.Exit(1)
 			}
 		}
 	},
 }
 
+func appendHof() error {
+	return appendToFile("cue.mods", HOFSTADTER_CUE_DEP)
+}
+
+func appendGo() error {
+	return appendToFile("go.mod", HOFSTADTER_GO_DEP)
+}
+
+func appendToFile(filename string, text string) error {
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		return errors.New("could not open " + filename)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(text)
+
+	if err != nil {
+		return errors.New("could not write text to " + filename)
+	}
+
+	return nil
+}
+
 func init() {
 	rootCmd.AddCommand(addCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

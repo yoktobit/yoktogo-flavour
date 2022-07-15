@@ -18,11 +18,13 @@ require (
 	github.com/aymerick/raymond v2.0.2+incompatible // indirect
 	github.com/bmatcuk/doublestar/v4 v4.0.2 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
+	github.com/emicklei/proto v1.9.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github/v38 v38.1.0 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
@@ -46,6 +48,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/protocolbuffers/txtpbfmt v0.0.0-20201118171849-f6a6b3f636fc // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
