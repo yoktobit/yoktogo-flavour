@@ -14,6 +14,8 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
+	"cuelang.org/go/cue/load"
+
 	"github.com/go-git/go-git/v5"
 	hofmod "github.com/hofstadter-io/hof/lib/mod"
 	"github.com/otiai10/copy"
@@ -57,30 +59,34 @@ var getCmd = &cobra.Command{
 
 func process(repoDir string) error {
 
-	err := removeGitDir(repoDir)
+	err := removeDefaultStuff(repoDir)
 	if err != nil {
 		return err
 	}
 	err = processDefinition(repoDir)
+	if err != nil {
+		return err
+	}
+	err = removeDefinition(repoDir)
 	return err
 }
 
 func processDefinition(repoDir string) error {
 
 	//schemaBytes := schema.Flavour
-	definitionBytes, err := readFile(repoDir, "yoktogo-flavour.cue")
-	if err != nil {
-		return err
-	}
+	//definitionBytes, err := readFile(repoDir, "yoktogo-flavour.cue")
+	//if err != nil {
+	//	return err
+	//}
 	cwd, _ := os.Getwd()
 	os.Chdir(repoDir)
 	hofmod.InitLangs()
-	err = hofmod.Vendor("cue")
+	err := hofmod.Vendor("cue")
 	if err != nil {
 		return err
 	}
 	ctx := cuecontext.New()
-	/*filenames := []string{path.Join(repoDir, "schema/Flavour.cue"), path.Join(repoDir, "yoktogo-flavour.cue")}
+	filenames := []string{ /*path.Join(repoDir, "schema/Flavour.cue"), */ path.Join(repoDir, "yoktogo-flavour.cue")}
 	instances := load.Instances(filenames, nil)
 	var root cue.Value
 	for _, bi := range instances {
@@ -96,10 +102,10 @@ func processDefinition(repoDir string) error {
 			return err
 		}
 		root = value
-	}*/
+	}
 	//schemaValue := ctx.CompileBytes(schemaBytes)
 	//root := ctx.CompileBytes(definitionBytes, cue.Scope(schemaValue))
-	root := ctx.CompileBytes(definitionBytes)
+	//root := ctx.CompileBytes(definitionBytes)
 	printAll(root)
 	name := root.LookupPath(cue.ParsePath("name"))
 	if name.Err() != nil {
@@ -107,8 +113,39 @@ func processDefinition(repoDir string) error {
 		os.Exit(1)
 	}
 	log.Println("Name of definition", name)
+	err = handleExcludes(repoDir, root)
+	if err != nil {
+		return err
+	}
+
 	os.Chdir(cwd)
 	return err
+}
+
+func handleExcludes(repoDir string, root cue.Value) error {
+	excludes := root.LookupPath(cue.ParsePath("excludes"))
+	if excludes.Exists() {
+		iterator, err := excludes.List()
+		if err != nil {
+			return err
+		}
+		for iterator.Next() {
+			val := iterator.Value()
+			excludePath, err := val.String()
+			if err != nil {
+				return err
+			}
+			log.Println("excluding", excludePath)
+			if _, err := os.Stat(excludePath); err == nil {
+				err = os.RemoveAll(excludePath)
+				if err != nil {
+					return err
+				}
+			}
+			os.RemoveAll(path.Join(repoDir, excludePath))
+		}
+	}
+	return nil
 }
 
 func printAll(v cue.Value) {
@@ -143,8 +180,24 @@ func readFile(repoDir string, file string) ([]byte, error) {
 	return bytes, err
 }
 
-func removeGitDir(repoDir string) error {
+func removeDefaultStuff(repoDir string) error {
+	err := os.RemoveAll(path.Join(repoDir, ".gitignore"))
+	if err != nil {
+		return err
+	}
 	return os.RemoveAll(path.Join(repoDir, ".git"))
+}
+
+func removeDefinition(repoDir string) error {
+	flavourPath := path.Join(repoDir, "yoktogo-flavour.cue")
+	log.Println("excluding default file", flavourPath)
+	if _, err := os.Stat(flavourPath); err == nil {
+		err = os.RemoveAll(flavourPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func init() {

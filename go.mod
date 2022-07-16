@@ -3,6 +3,7 @@ module github.com/yoktobit/yoktogo-flavour
 go 1.18
 
 require (
+	cuelang.org/go v0.4.3
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/hofstadter-io/hof v0.6.3-rc.5
 	github.com/otiai10/copy v1.7.0
@@ -11,7 +12,6 @@ require (
 )
 
 require (
-	cuelang.org/go v0.4.3 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
