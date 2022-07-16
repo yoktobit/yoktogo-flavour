@@ -18,7 +18,6 @@ import (
 	hofmod "github.com/hofstadter-io/hof/lib/mod"
 	"github.com/otiai10/copy"
 	"github.com/spf13/cobra"
-	"github.com/yoktobit/yoktogo-flavour/schema"
 )
 
 // getCmd represents the get command
@@ -68,7 +67,7 @@ func process(repoDir string) error {
 
 func processDefinition(repoDir string) error {
 
-	schemaBytes := schema.Flavour
+	//schemaBytes := schema.Flavour
 	definitionBytes, err := readFile(repoDir, "yoktogo-flavour.cue")
 	if err != nil {
 		return err
@@ -98,8 +97,9 @@ func processDefinition(repoDir string) error {
 		}
 		root = value
 	}*/
-	schemaValue := ctx.CompileBytes(schemaBytes)
-	root := ctx.CompileBytes(definitionBytes, cue.Scope(schemaValue))
+	//schemaValue := ctx.CompileBytes(schemaBytes)
+	//root := ctx.CompileBytes(definitionBytes, cue.Scope(schemaValue))
+	root := ctx.CompileBytes(definitionBytes)
 	printAll(root)
 	name := root.LookupPath(cue.ParsePath("name"))
 	if name.Err() != nil {
