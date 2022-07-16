@@ -1,0 +1,3 @@
+module github.com/yoktobit/yoktogo-flavour
+
+cue v0.4.0
