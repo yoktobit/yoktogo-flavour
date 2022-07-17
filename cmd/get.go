@@ -38,23 +38,33 @@ var getCmd = &cobra.Command{
 		repoDir, err := ioutil.TempDir("", "ygf-*")
 		if err != nil {
 			log.Fatalln(err.Error())
+			os.Exit(1)
 		}
 		log.Println("Cloning into temp dir", repoDir)
 		_, err = git.PlainClone(repoDir, false, &git.CloneOptions{SingleBranch: true, URL: repoLink})
 		if err != nil {
-			log.Fatalln(err.Error())
-			os.Exit(1)
+			fail(err, repoDir)
 		}
 		err = process(repoDir)
 		if err != nil {
-			log.Fatalln(err.Error())
-			os.Exit(1)
+			fail(err, repoDir)
 		}
 		err = copy.Copy(repoDir, ".", copy.Options{})
 		if err != nil {
-			log.Fatalln(err.Error())
+			fail(err, repoDir)
 		}
+		deleteRepoDir(repoDir)
 	},
+}
+
+func fail(err error, repoDir string) {
+	log.Fatalln(err.Error())
+	deleteRepoDir(repoDir)
+	os.Exit(1)
+}
+
+func deleteRepoDir(repoDir string) {
+	os.RemoveAll(repoDir)
 }
 
 func process(repoDir string) error {
