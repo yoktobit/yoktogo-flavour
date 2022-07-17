@@ -2,7 +2,7 @@
 This command adds flavours to a project, e.g. to add cue support. Say... partial archetypes.
 
 # Installation
-go install github.com/yoktobit/yoktogo-flavour@latest
+go install github.com/yoktobit/yoktogo-flavour/cmd/ygf@latest
 
 # Usage
 
