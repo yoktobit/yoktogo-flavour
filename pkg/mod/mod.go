@@ -7,10 +7,11 @@ import (
 	modfile "golang.org/x/mod/modfile"
 )
 
-func GetModuleName() string {
+func GetModuleName() (string, error) {
 	goModBytes, err := ioutil.ReadFile("go.mod")
 	if err != nil {
 		log.Fatalln(err.Error())
+		return "", err
 	}
-	return modfile.ModulePath(goModBytes)
+	return modfile.ModulePath(goModBytes), nil
 }

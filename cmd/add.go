@@ -17,11 +17,11 @@ import (
 const (
 	LANG               = "cue"
 	HOFSTADTER_CUE_DEP = `
-require "github.com/hofstadter-io/hof" v0.6.2` + "\n"
+require "github.com/hofstadter-io/hof" v0.6.3` + "\n"
 	HOFSTADTER_GO_DEP = `
 require (
 	cuelang.org/go v0.4.3
-	github.com/hofstadter-io/hof v0.6.2
+	github.com/hofstadter-io/hof v0.6.3
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 )` + "\n"
 )
@@ -41,9 +41,13 @@ Known flavours:
 		flavour := args[0]
 		switch flavour {
 		case LANG:
-			moduleName := mod.GetModuleName()
+			moduleName, err := mod.GetModuleName()
+			hasGo := true
+			if err != nil {
+				hasGo = false
+			}
 			hofmod.InitLangs()
-			err := hofmod.Init(LANG, moduleName)
+			err = hofmod.Init(LANG, moduleName)
 			if err != nil {
 				log.Fatalln(err.Error())
 				os.Exit(1)
@@ -53,10 +57,12 @@ Known flavours:
 				log.Fatalln(err.Error())
 				os.Exit(1)
 			}
-			err = appendGo()
-			if err != nil {
-				log.Fatalln(err.Error())
-				os.Exit(1)
+			if hasGo {
+				err = appendGo()
+				if err != nil {
+					log.Fatalln(err.Error())
+					os.Exit(1)
+				}
 			}
 			err = hofmod.Vendor(LANG)
 			if err != nil {
